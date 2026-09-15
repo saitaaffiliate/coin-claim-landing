@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07070c;
+  --foreground: #f4f0e6;
+  --ink: #0a0a12;
+  --surface: #12121c;
+  --muted: #9a9488;
+  --gold: #c9a227;
+  --gold-bright: #f0d060;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --shadow-glow: 0 0 40px rgba(240, 208, 96, 0.12);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Soft radial gold wash behind hero */
+.hero-glow {
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      rgba(201, 162, 39, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 80% 20%,
+      rgba(240, 208, 96, 0.06),
+      transparent 50%
+    ),
+    var(--background);
+}
+
+.grid-fade {
+  background-image:
+    linear-gradient(rgba(240, 208, 96, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240, 208, 96, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+}
