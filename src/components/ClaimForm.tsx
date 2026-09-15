@@ -1,11 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { API_BASE } from "@/lib/config";
 
 type UiState =
   | { kind: "idle" }
-  | { kind: "loading" }
+  | { kind: "loading"; message: string }
   | {
       kind: "ready";
       userId: string;
@@ -21,81 +21,176 @@ type UiState =
       message: string;
     };
 
+const LOOKUP_MESSAGES = [
+  "Connecting to the server…",
+  "Fetching your account…",
+  "Looking up rewards…",
+  "Verifying your profile…",
+  "Almost ready…",
+];
+
+const CLAIM_MESSAGES = [
+  "Connecting to the game server…",
+  "Preparing your coins…",
+  "Processing claim…",
+  "Securing your reward…",
+  "Finalizing transfer…",
+];
+
+/** Total staged wait in the 5–10s range before showing the result. */
+const STAGED_DELAY_MS = 7500;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runStagedWait(
+  messages: string[],
+  onMessage: (msg: string) => void,
+  totalMs: number = STAGED_DELAY_MS,
+) {
+  const step = Math.max(800, Math.floor(totalMs / messages.length));
+  const started = Date.now();
+  for (let i = 0; i < messages.length; i++) {
+    onMessage(messages[i]);
+    const elapsed = Date.now() - started;
+    const target = (i + 1) * step;
+    const wait = Math.max(0, Math.min(step, target - elapsed));
+    if (i < messages.length - 1 || wait > 0) {
+      await sleep(i === messages.length - 1 ? Math.max(0, totalMs - elapsed) : wait);
+    }
+  }
+  const leftover = totalMs - (Date.now() - started);
+  if (leftover > 0) await sleep(leftover);
+}
+
 export default function ClaimForm() {
   const [userId, setUserId] = useState("");
   const [state, setState] = useState<UiState>({ kind: "idle" });
   const [claiming, setClaiming] = useState(false);
+  const [claimMessage, setClaimMessage] = useState(CLAIM_MESSAGES[0]);
+  const cancelled = useRef(false);
+
+  useEffect(() => {
+    cancelled.current = false;
+    return () => {
+      cancelled.current = true;
+    };
+  }, []);
 
   async function handleLookup(e: FormEvent) {
     e.preventDefault();
     const id = userId.trim();
     if (!id) return;
 
-    setState({ kind: "loading" });
+    setState({ kind: "loading", message: LOOKUP_MESSAGES[0] });
 
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/lookup?userId=${encodeURIComponent(id)}`,
-      );
-      const data = await res.json();
+    const fetchPromise = fetch(
+      `${API_BASE}/api/lookup?userId=${encodeURIComponent(id)}`,
+    )
+      .then(async (res) => {
+        const data = await res.json();
+        return { res, data };
+      })
+      .catch(() => null);
 
-      if (res.status === 404 || data.error === "not_found") {
-        setState({
-          kind: "error",
-          code: "not_found",
-          message: data.message ?? "No account found for that user ID.",
-        });
-        return;
-      }
+    await runStagedWait(LOOKUP_MESSAGES, (message) => {
+      if (!cancelled.current) setState({ kind: "loading", message });
+    });
 
-      if (!res.ok) {
-        setState({
-          kind: "error",
-          code: "generic",
-          message: data.message ?? "Something went wrong. Try again.",
-        });
-        return;
-      }
+    const result = await fetchPromise;
+    if (cancelled.current) return;
 
-      if (data.status === "claimed" || !data.claimable) {
-        setState({
-          kind: "error",
-          code: "already_claimed",
-          message:
-            data.message ??
-            "These coins have already been claimed for this account.",
-        });
-        return;
-      }
-
-      setState({
-        kind: "ready",
-        userId: data.userId,
-        displayName: data.displayName,
-        coins: data.coins,
-        claimable: data.claimable,
-        status: data.status,
-      });
-    } catch {
+    if (!result) {
       setState({
         kind: "error",
         code: "generic",
         message: "Network error. Check your connection and try again.",
       });
+      return;
     }
+
+    const { res, data } = result;
+
+    if (res.status === 404 || data.error === "not_found") {
+      setState({
+        kind: "error",
+        code: "not_found",
+        message: data.message ?? "No account found for that user ID.",
+      });
+      return;
+    }
+
+    if (!res.ok) {
+      setState({
+        kind: "error",
+        code: "generic",
+        message: data.message ?? "Something went wrong. Try again.",
+      });
+      return;
+    }
+
+    if (data.status === "claimed" || !data.claimable) {
+      setState({
+        kind: "error",
+        code: "already_claimed",
+        message:
+          data.message ??
+          "These coins have already been claimed for this account.",
+      });
+      return;
+    }
+
+    setState({
+      kind: "ready",
+      userId: data.userId,
+      displayName: data.displayName,
+      coins: data.coins,
+      claimable: data.claimable,
+      status: data.status,
+    });
   }
 
   async function handleClaim() {
     if (state.kind !== "ready") return;
     setClaiming(true);
+    setClaimMessage(CLAIM_MESSAGES[0]);
+
+    const user = state.userId;
+    const displayName = state.displayName;
+
+    const fetchPromise = fetch(`${API_BASE}/api/claim`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        return { res, data };
+      })
+      .catch(() => null);
+
+    await runStagedWait(CLAIM_MESSAGES, (message) => {
+      if (!cancelled.current) setClaimMessage(message);
+    });
+
+    const result = await fetchPromise;
+    if (cancelled.current) {
+      setClaiming(false);
+      return;
+    }
 
     try {
-      const res = await fetch(`${API_BASE}/api/claim`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: state.userId }),
-      });
-      const data = await res.json();
+      if (!result) {
+        setState({
+          kind: "error",
+          code: "generic",
+          message: "Network error during claim. Please try again.",
+        });
+        return;
+      }
+
+      const { res, data } = result;
 
       if (res.status === 409 || data.error === "already_claimed") {
         setState({
@@ -127,13 +222,7 @@ export default function ClaimForm() {
       setState({
         kind: "success",
         claimed: data.claimed,
-        displayName: data.displayName ?? state.displayName,
-      });
-    } catch {
-      setState({
-        kind: "error",
-        code: "generic",
-        message: "Network error during claim. Please try again.",
+        displayName: data.displayName ?? displayName,
       });
     } finally {
       setClaiming(false);
@@ -143,6 +232,7 @@ export default function ClaimForm() {
   function reset() {
     setState({ kind: "idle" });
     setUserId("");
+    setClaiming(false);
   }
 
   return (
@@ -176,9 +266,23 @@ export default function ClaimForm() {
               disabled={state.kind === "loading" || !userId.trim()}
               className="w-full rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3 font-semibold text-ink shadow-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              {state.kind === "loading" ? "Checking…" : "Check Rewards"}
+              {state.kind === "loading" ? "Please wait…" : "Check Rewards"}
             </button>
           </form>
+        )}
+
+        {state.kind === "loading" && (
+          <div
+            className="mt-5 rounded-xl border border-gold/20 bg-ink/50 px-4 py-5 text-center"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-gold/30 border-t-gold-bright" />
+            <p className="text-sm font-medium text-gold-bright">{state.message}</p>
+            <p className="mt-1 text-xs text-muted">
+              This can take a few seconds — hang tight.
+            </p>
+          </div>
         )}
 
         {state.kind === "error" && (
@@ -187,9 +291,7 @@ export default function ClaimForm() {
             className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
               state.code === "already_claimed"
                 ? "border-amber-500/40 bg-amber-500/10 text-amber-200"
-                : state.code === "not_found"
-                  ? "border-rose-500/40 bg-rose-500/10 text-rose-200"
-                  : "border-rose-500/40 bg-rose-500/10 text-rose-200"
+                : "border-rose-500/40 bg-rose-500/10 text-rose-200"
             }`}
           >
             <p className="font-medium">
@@ -203,7 +305,7 @@ export default function ClaimForm() {
           </div>
         )}
 
-        {state.kind === "ready" && (
+        {state.kind === "ready" && !claiming && (
           <div className="space-y-5">
             <div className="rounded-xl border border-gold/20 bg-ink/50 px-4 py-4 text-center">
               <p className="text-sm text-muted">Welcome back</p>
@@ -218,10 +320,9 @@ export default function ClaimForm() {
             <button
               type="button"
               onClick={handleClaim}
-              disabled={claiming}
-              className="w-full rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3.5 font-semibold text-ink shadow-glow hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="w-full rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3.5 font-semibold text-ink shadow-glow hover:brightness-110 transition"
             >
-              {claiming ? "Claiming…" : "Claim Coins"}
+              Claim Coins
             </button>
             <button
               type="button"
@@ -230,6 +331,20 @@ export default function ClaimForm() {
             >
               Use a different ID
             </button>
+          </div>
+        )}
+
+        {claiming && (
+          <div
+            className="rounded-xl border border-gold/20 bg-ink/50 px-4 py-5 text-center"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-gold/30 border-t-gold-bright" />
+            <p className="text-sm font-medium text-gold-bright">{claimMessage}</p>
+            <p className="mt-1 text-xs text-muted">
+              Please wait while we finish your claim.
+            </p>
           </div>
         )}
 
