@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { API_BASE } from "@/lib/config";
+import Sponsors from "@/components/Sponsors";
 
 type UiState =
   | { kind: "idle" }
@@ -235,9 +236,11 @@ export default function ClaimForm() {
     setClaiming(false);
   }
 
+  const showSponsors = state.kind === "ready";
+
   return (
-    <div className="w-full max-w-md mx-auto min-w-0 px-0">
-      <div className="rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-4 sm:p-8 overflow-hidden">
+    <div className="w-full mx-auto min-w-0 px-0">
+      <div className="w-full max-w-md mx-auto rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-4 sm:p-8 overflow-hidden">
         <h2 className="text-lg sm:text-2xl font-semibold text-gold-bright tracking-wide text-center mb-1 break-words">
           Claim Your Coins
         </h2>
@@ -388,6 +391,8 @@ export default function ClaimForm() {
           </div>
         )}
       </div>
+
+      {showSponsors && <Sponsors embedded />}
     </div>
   );
 }

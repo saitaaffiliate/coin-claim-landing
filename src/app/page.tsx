@@ -2,7 +2,6 @@ import ClaimForm from "@/components/ClaimForm";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import HowItWorks from "@/components/HowItWorks";
-import Sponsors from "@/components/Sponsors";
 import { BRAND_NAME, SITE_TAGLINE } from "@/lib/config";
 
 export default function Home() {
@@ -44,8 +43,6 @@ export default function Home() {
           </div>
           <ClaimForm />
         </section>
-
-        <Sponsors />
 
         <HowItWorks />
       </main>
