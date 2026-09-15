@@ -240,7 +240,11 @@ export default function ClaimForm() {
 
   return (
     <div className="w-full mx-auto min-w-0 px-0">
-      <div className="w-full max-w-md mx-auto rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-4 sm:p-8 overflow-hidden">
+      <div
+        className={`w-full mx-auto rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-4 sm:p-8 overflow-hidden transition-[max-width] ${
+          showSponsors ? "max-w-5xl" : "max-w-md"
+        }`}
+      >
         <h2 className="text-lg sm:text-2xl font-semibold text-gold-bright tracking-wide text-center mb-1 break-words">
           Claim Your Coins
         </h2>
@@ -390,9 +394,13 @@ export default function ClaimForm() {
             </button>
           </div>
         )}
-      </div>
 
-      {showSponsors && <Sponsors embedded />}
+        {showSponsors && (
+          <div className="mt-6 border-t border-gold/15 pt-6">
+            <Sponsors embedded />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

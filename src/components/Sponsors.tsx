@@ -78,21 +78,21 @@ export default function Sponsors({ embedded = false }: SponsorsProps) {
       id="sponsors"
       className={
         embedded
-          ? "relative z-10 mx-auto w-full max-w-5xl px-0 pt-8 sm:pt-10"
+          ? "relative z-10 mx-auto w-full px-0 pt-0"
           : "relative z-10 mx-auto w-full max-w-5xl px-3 py-12 sm:px-6 sm:py-20"
       }
     >
-      <h2 className="text-center text-xl sm:text-2xl font-semibold text-foreground tracking-tight px-2 break-words">
+      <h2 className="text-center text-base sm:text-xl font-semibold text-foreground tracking-tight px-1 break-words">
         Featured apps & offers
       </h2>
-      <p className="mt-2 text-center text-muted text-sm sm:text-base max-w-lg mx-auto px-2">
+      <p className="mt-1.5 text-center text-muted text-xs sm:text-sm max-w-lg mx-auto px-1">
         Your coins are ready — complete an offer below to unlock more ways to
         earn.
       </p>
 
       {state.kind === "loading" && (
-        <div className="mt-8 sm:mt-10 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 ${embedded ? "mt-4 lg:grid-cols-2" : "mt-8 sm:mt-10 lg:grid-cols-3"}`}>
+          {Array.from({ length: embedded ? 4 : 6 }).map((_, i) => (
             <div
               key={i}
               className="h-40 sm:h-48 animate-pulse rounded-2xl border border-gold/10 bg-surface/40"
@@ -104,20 +104,20 @@ export default function Sponsors({ embedded = false }: SponsorsProps) {
       {state.kind === "error" && (
         <div
           role="alert"
-          className="mt-8 sm:mt-10 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-4 sm:px-4 sm:py-5 text-center text-sm text-rose-200 break-words"
+          className={`${embedded ? "mt-4" : "mt-8 sm:mt-10"} rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-4 sm:px-4 sm:py-5 text-center text-sm text-rose-200 break-words`}
         >
           {state.message}
         </div>
       )}
 
       {state.kind === "ready" && state.offers.length === 0 && (
-        <p className="mt-8 sm:mt-10 text-center text-sm text-muted px-2">
+        <p className={`${embedded ? "mt-4" : "mt-8 sm:mt-10"} text-center text-sm text-muted px-2`}>
           No sponsor apps available for you right now. Check back soon.
         </p>
       )}
 
       {state.kind === "ready" && state.offers.length > 0 && (
-        <ul className="mt-8 sm:mt-10 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 ${embedded ? "mt-4 lg:grid-cols-2" : "mt-8 sm:mt-10 lg:grid-cols-3"}`}>
           {state.offers.map((offer) => {
             const blurb =
               offer.adcopy ||
