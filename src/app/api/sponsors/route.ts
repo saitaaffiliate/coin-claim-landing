@@ -18,7 +18,20 @@ export type SponsorOffer = {
   boosted: boolean;
 };
 
-function clientIp(req: NextRequest): string {
+function isLoopbackOrPrivate(ip: string): boolean {
+  const v = ip.replace(/^::ffff:/, "");
+  if (v === "::1" || v === "127.0.0.1" || v === "0.0.0.0") return true;
+  if (v.startsWith("10.") || v.startsWith("192.168.") || v.startsWith("169.254."))
+    return true;
+  const m = /^172\.(\d+)\./.exec(v);
+  if (m) {
+    const n = Number(m[1]);
+    if (n >= 16 && n <= 31) return true;
+  }
+  return false;
+}
+
+function headerIp(req: NextRequest): string | null {
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
     const first = forwarded.split(",")[0]?.trim();
@@ -26,12 +39,33 @@ function clientIp(req: NextRequest): string {
   }
   const real = req.headers.get("x-real-ip")?.trim();
   if (real) return real;
-  // Local / unknown — OfferTrk requires an IP string
-  return "127.0.0.1";
+  const cf = req.headers.get("cf-connecting-ip")?.trim();
+  if (cf) return cf;
+  return null;
+}
+
+async function resolveVisitorIp(req: NextRequest): Promise<string> {
+  const fromHeader = headerIp(req);
+  if (fromHeader && !isLoopbackOrPrivate(fromHeader)) return fromHeader;
+
+  // Localhost / private: OfferTrk needs a real public IP
+  try {
+    const r = await fetch("https://api.ipify.org?format=json", {
+      cache: "no-store",
+    });
+    if (r.ok) {
+      const j = (await r.json()) as { ip?: string };
+      if (j.ip) return j.ip;
+    }
+  } catch {
+    // fall through
+  }
+
+  return fromHeader || "8.8.8.8";
 }
 
 export async function GET(req: NextRequest) {
-  const apiKey = process.env.OFFERTRK_API_KEY;
+  const apiKey = process.env.OFFERTRK_API_KEY?.trim();
   if (!apiKey) {
     return NextResponse.json(
       {
@@ -47,19 +81,21 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const max = searchParams.get("max") ?? "12";
   const min = searchParams.get("min");
-  // Match OfferTrk guide example: always send ctype (default 1 = CPI)
+  // Match OfferTrk guide: ctype=1 (CPI) by default
   const ctype = searchParams.get("ctype") ?? "1";
   const aff_sub4 = searchParams.get("aff_sub4");
   const aff_sub5 = searchParams.get("aff_sub5");
 
-  const ip = searchParams.get("ip")?.trim() || clientIp(req);
+  const ip =
+    searchParams.get("ip")?.trim() || (await resolveVisitorIp(req));
   const userAgent =
     searchParams.get("user_agent")?.trim() ||
     req.headers.get("user-agent") ||
     "Mozilla/5.0";
 
-  // Upstream shape:
-  // https://offertrk.org/api/v2?ip=...&user_agent=...&ctype=1
+  // Upstream:
+  // GET https://offertrk.org/api/v2?ip=...&user_agent=...&ctype=1
+  // Header: Authorization: Bearer <OFFERTRK_API_KEY>
   const upstream = new URL(OFFERTRK_URL);
   upstream.searchParams.set("ip", ip);
   upstream.searchParams.set("user_agent", userAgent);
@@ -71,11 +107,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(upstream.toString(), {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         Accept: "application/json",
       },
-      // Fresh offers per visitor
       cache: "no-store",
     });
 
@@ -84,6 +120,7 @@ export async function GET(req: NextRequest) {
       success?: boolean;
       error?: string | null;
       offers?: Array<Record<string, unknown>>;
+      message?: string;
     } = {};
     try {
       data = JSON.parse(raw);
@@ -99,12 +136,28 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    if (res.status === 401) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "unauthorized",
+          message:
+            "OfferTrk rejected the request — check Authorization Bearer token.",
+          offers: [],
+        },
+        { status: 401 },
+      );
+    }
+
     if (!res.ok || data.success === false) {
       return NextResponse.json(
         {
           success: false,
           error: data.error ?? "upstream_error",
-          message: "Could not load sponsor apps right now.",
+          message:
+            typeof data.message === "string"
+              ? data.message
+              : "Could not load sponsor apps right now.",
           offers: [],
         },
         { status: res.status >= 400 ? res.status : 502 },
