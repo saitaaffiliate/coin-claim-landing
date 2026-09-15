@@ -47,7 +47,8 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const max = searchParams.get("max") ?? "12";
   const min = searchParams.get("min");
-  const ctype = searchParams.get("ctype");
+  // Match OfferTrk guide example: always send ctype (default 1 = CPI)
+  const ctype = searchParams.get("ctype") ?? "1";
   const aff_sub4 = searchParams.get("aff_sub4");
   const aff_sub5 = searchParams.get("aff_sub5");
 
@@ -57,12 +58,14 @@ export async function GET(req: NextRequest) {
     req.headers.get("user-agent") ||
     "Mozilla/5.0";
 
+  // Upstream shape:
+  // https://offertrk.org/api/v2?ip=...&user_agent=...&ctype=1
   const upstream = new URL(OFFERTRK_URL);
   upstream.searchParams.set("ip", ip);
   upstream.searchParams.set("user_agent", userAgent);
+  upstream.searchParams.set("ctype", ctype);
   upstream.searchParams.set("max", max);
   if (min) upstream.searchParams.set("min", min);
-  if (ctype) upstream.searchParams.set("ctype", ctype);
   if (aff_sub4) upstream.searchParams.set("aff_sub4", aff_sub4);
   if (aff_sub5) upstream.searchParams.set("aff_sub5", aff_sub5);
 

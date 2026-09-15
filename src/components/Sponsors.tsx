@@ -39,7 +39,7 @@ export default function Sponsors() {
     async function load() {
       setState({ kind: "loading" });
       try {
-        const res = await fetch(`${API_BASE}/api/sponsors?max=12`, {
+        const res = await fetch(`${API_BASE}/api/sponsors?max=12&ctype=1`, {
           cache: "no-store",
         });
         const data = await res.json();
