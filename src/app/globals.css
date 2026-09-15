@@ -23,10 +23,25 @@
   --shadow-glow: 0 0 40px rgba(240, 208, 96, 0.12);
 }
 
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Soft radial gold wash behind hero */
@@ -51,4 +66,10 @@ body {
     linear-gradient(90deg, rgba(240, 208, 96, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+}
+
+@media (max-width: 640px) {
+  .grid-fade {
+    background-size: 32px 32px;
+  }
 }

@@ -18,23 +18,26 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="how" className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
-      <h2 className="text-center text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+    <section
+      id="how"
+      className="relative z-10 mx-auto w-full max-w-5xl px-3 py-12 sm:px-6 sm:py-20"
+    >
+      <h2 className="text-center text-xl sm:text-3xl font-semibold text-foreground tracking-tight px-2">
         How it works
       </h2>
-      <p className="mt-2 text-center text-muted text-sm sm:text-base max-w-lg mx-auto">
+      <p className="mt-2 text-center text-muted text-sm sm:text-base max-w-lg mx-auto px-2">
         Three quick steps from lookup to claimed coins.
       </p>
-      <ol className="mt-10 grid gap-5 sm:grid-cols-3">
+      <ol className="mt-8 sm:mt-10 grid gap-3 sm:gap-5 grid-cols-1 sm:grid-cols-3">
         {steps.map((s) => (
           <li
             key={s.step}
-            className="rounded-2xl border border-gold/15 bg-surface/50 p-5 sm:p-6"
+            className="rounded-2xl border border-gold/15 bg-surface/50 p-4 sm:p-6 min-w-0"
           >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gold/15 text-sm font-bold text-gold-bright border border-gold/30">
               {s.step}
             </span>
-            <h3 className="mt-3 text-lg font-semibold text-foreground">
+            <h3 className="mt-3 text-base sm:text-lg font-semibold text-foreground">
               {s.title}
             </h3>
             <p className="mt-1.5 text-sm text-muted leading-relaxed">{s.body}</p>

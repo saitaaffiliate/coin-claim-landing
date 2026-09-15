@@ -236,12 +236,12 @@ export default function ClaimForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-6 sm:p-8">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gold-bright tracking-wide text-center mb-1">
+    <div className="w-full max-w-md mx-auto min-w-0 px-0">
+      <div className="rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-4 sm:p-8 overflow-hidden">
+        <h2 className="text-lg sm:text-2xl font-semibold text-gold-bright tracking-wide text-center mb-1 break-words">
           Claim Your Coins
         </h2>
-        <p className="text-sm text-muted text-center mb-6">
+        <p className="text-xs sm:text-sm text-muted text-center mb-5 sm:mb-6 px-1">
           Enter your user ID or username to check rewards
         </p>
 
@@ -258,13 +258,13 @@ export default function ClaimForm() {
                 placeholder="e.g. player1"
                 autoComplete="username"
                 disabled={state.kind === "loading"}
-                className="w-full rounded-xl border border-gold/20 bg-ink/60 px-4 py-3 text-foreground placeholder:text-muted/70 outline-none focus:border-gold/60 focus:ring-2 focus:ring-gold/20 transition"
+                className="w-full min-h-11 rounded-xl border border-gold/20 bg-ink/60 px-3 sm:px-4 py-3 text-base sm:text-sm text-foreground placeholder:text-muted/70 outline-none focus:border-gold/60 focus:ring-2 focus:ring-gold/20 transition touch-manipulation"
               />
             </label>
             <button
               type="submit"
               disabled={state.kind === "loading" || !userId.trim()}
-              className="w-full rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3 font-semibold text-ink shadow-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="w-full min-h-11 rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3 font-semibold text-ink shadow-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition touch-manipulation"
             >
               {state.kind === "loading" ? "Please wait…" : "Check Rewards"}
             </button>
@@ -312,7 +312,7 @@ export default function ClaimForm() {
               <p className="text-lg font-semibold text-foreground mt-0.5">
                 {state.displayName}
               </p>
-              <p className="mt-3 text-4xl font-bold text-gold-bright tabular-nums tracking-tight">
+              <p className="mt-3 text-3xl sm:text-4xl font-bold text-gold-bright tabular-nums tracking-tight break-all">
                 {state.coins.toLocaleString()}
               </p>
               <p className="text-sm text-gold/80 mt-1">coins ready to claim</p>
@@ -320,7 +320,7 @@ export default function ClaimForm() {
             <button
               type="button"
               onClick={handleClaim}
-              className="w-full rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3.5 font-semibold text-ink shadow-glow hover:brightness-110 transition"
+              className="w-full min-h-11 rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3.5 font-semibold text-ink shadow-glow hover:brightness-110 transition touch-manipulation"
             >
               Claim Coins
             </button>
