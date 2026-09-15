@@ -2,6 +2,7 @@ import ClaimForm from "@/components/ClaimForm";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import HowItWorks from "@/components/HowItWorks";
+import Sponsors from "@/components/Sponsors";
 import { BRAND_NAME, SITE_TAGLINE } from "@/lib/config";
 
 export default function Home() {
@@ -15,7 +16,6 @@ export default function Home() {
         <Header />
 
         <main className="relative z-10 flex-1">
-          {/* Coin generator / claim — top of page */}
           <section
             id="claim"
             className="mx-auto max-w-5xl px-4 pt-10 pb-12 sm:px-6 sm:pt-14 sm:pb-16"
@@ -44,6 +44,8 @@ export default function Home() {
             </div>
             <ClaimForm />
           </section>
+
+          <Sponsors />
 
           <HowItWorks />
         </main>

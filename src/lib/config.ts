@@ -31,3 +31,9 @@ export const GAME_SERVER_URL =
   process.env.GAME_SERVER_URL?.replace(/\/$/, "") ?? "";
 
 export const USE_STUB = !GAME_SERVER_URL;
+
+/**
+ * OfferTrk sponsors API is server-only.
+ * Set OFFERTRK_API_KEY (and optional OFFERTRK_API_URL) in `.env.local`.
+ * The browser calls `/api/sponsors`; the key never ships to the client.
+ */
