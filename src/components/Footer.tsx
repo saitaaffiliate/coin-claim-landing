@@ -9,7 +9,7 @@ export default function Footer() {
           game terms.
         </p>
         <p className="mt-2 text-[11px] sm:text-xs opacity-70 px-1 leading-relaxed">
-          Enter your in-game user ID to look up and claim available coins.
+          Enter your in-game user ID to look up and claim available Robux.
         </p>
       </div>
     </footer>

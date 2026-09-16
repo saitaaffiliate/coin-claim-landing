@@ -8,19 +8,19 @@ type UiState =
   | { kind: "idle" }
   | { kind: "loading"; message: string }
   | {
-      kind: "ready";
-      userId: string;
-      displayName: string;
-      coins: number;
-      claimable: boolean;
-      status: string;
-    }
+    kind: "ready";
+    userId: string;
+    displayName: string;
+    coins: number;
+    claimable: boolean;
+    status: string;
+  }
   | { kind: "success"; claimed: number; displayName: string }
   | {
-      kind: "error";
-      code: "not_found" | "already_claimed" | "generic";
-      message: string;
-    };
+    kind: "error";
+    code: "not_found" | "already_claimed" | "generic";
+    message: string;
+  };
 
 const LOOKUP_MESSAGES = [
   "Connecting to the server…",
@@ -261,12 +261,11 @@ export default function ClaimForm() {
   return (
     <div className="w-full mx-auto min-w-0 px-0">
       <div
-        className={`w-full mx-auto rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-4 sm:p-8 overflow-hidden transition-[max-width] ${
-          showSponsors ? "max-w-5xl" : "max-w-md"
-        }`}
+        className={`w-full mx-auto rounded-2xl border border-gold/25 bg-surface/80 backdrop-blur-md shadow-glow p-4 sm:p-8 overflow-hidden transition-[max-width] ${showSponsors ? "max-w-5xl" : "max-w-md"
+          }`}
       >
         <h2 className="text-lg sm:text-2xl font-semibold text-gold-bright tracking-wide text-center mb-1 break-words">
-          Claim Your Coins
+          Claim Your Robux
         </h2>
         <p className="text-xs sm:text-sm text-muted text-center mb-5 sm:mb-6 px-1">
           Enter your user ID or username to check rewards
@@ -275,28 +274,28 @@ export default function ClaimForm() {
         {(state.kind === "idle" ||
           state.kind === "loading" ||
           state.kind === "error") && (
-          <form onSubmit={handleLookup} className="space-y-4">
-            <label className="block">
-              <span className="sr-only">User ID</span>
-              <input
-                type="text"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                placeholder="Enter your username"
-                autoComplete="username"
-                disabled={state.kind === "loading"}
-                className="w-full min-h-11 rounded-xl border border-gold/20 bg-ink/60 px-3 sm:px-4 py-3 text-base sm:text-sm text-foreground placeholder:text-muted/70 outline-none focus:border-gold/60 focus:ring-2 focus:ring-gold/20 transition touch-manipulation"
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={state.kind === "loading" || !userId.trim()}
-              className="w-full min-h-11 rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3 font-semibold text-ink shadow-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition touch-manipulation"
-            >
-              {state.kind === "loading" ? "Please wait…" : "Check Rewards"}
-            </button>
-          </form>
-        )}
+            <form onSubmit={handleLookup} className="space-y-4">
+              <label className="block">
+                <span className="sr-only">User ID</span>
+                <input
+                  type="text"
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  placeholder="Enter your username"
+                  autoComplete="username"
+                  disabled={state.kind === "loading"}
+                  className="w-full min-h-11 rounded-xl border border-gold/20 bg-ink/60 px-3 sm:px-4 py-3 text-base sm:text-sm text-foreground placeholder:text-muted/70 outline-none focus:border-gold/60 focus:ring-2 focus:ring-gold/20 transition touch-manipulation"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={state.kind === "loading" || !userId.trim()}
+                className="w-full min-h-11 rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3 font-semibold text-ink shadow-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition touch-manipulation"
+              >
+                {state.kind === "loading" ? "Please wait…" : "Check Rewards"}
+              </button>
+            </form>
+          )}
 
         {state.kind === "loading" && (
           <div
@@ -315,11 +314,10 @@ export default function ClaimForm() {
         {state.kind === "error" && (
           <div
             role="alert"
-            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
-              state.code === "already_claimed"
+            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${state.code === "already_claimed"
                 ? "border-amber-500/40 bg-amber-500/10 text-amber-200"
                 : "border-rose-500/40 bg-rose-500/10 text-rose-200"
-            }`}
+              }`}
           >
             <p className="font-medium">
               {state.code === "already_claimed"

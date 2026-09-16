@@ -7,7 +7,7 @@ const steps = [
   {
     step: "2",
     title: "Check balance",
-    body: "We’ll show any coins waiting for you — no login spam required.",
+    body: "We’ll show any Robux waiting for you — no login spam required.",
   },
   {
     step: "3",

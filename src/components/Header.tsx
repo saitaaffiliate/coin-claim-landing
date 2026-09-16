@@ -9,7 +9,7 @@ export default function Header() {
             className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-bright to-gold text-ink font-bold text-sm shadow-glow"
             aria-hidden
           >
-            ★
+            {"\u2605"}
           </span>
           <span className="truncate text-base sm:text-lg font-semibold tracking-wide text-foreground group-hover:text-gold-bright transition">
             {BRAND_NAME}

@@ -44,7 +44,7 @@ function headerIp(req: NextRequest): string | null {
   return null;
 }
 
-async function resolveVisitorIp(req: NextRequest): Promise<string> {
+async function resolveVisitorIp(req: NextRequest): string {
   const fromHeader = headerIp(req);
   if (fromHeader && !isLoopbackOrPrivate(fromHeader)) return fromHeader;
 
