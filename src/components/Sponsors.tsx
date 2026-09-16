@@ -86,8 +86,7 @@ export default function Sponsors({ embedded = false }: SponsorsProps) {
         Featured apps & offers
       </h2>
       <p className="mt-1.5 text-center text-muted text-xs sm:text-sm max-w-lg mx-auto px-1">
-        Your coins are ready — complete an offer below to unlock more ways to
-        earn.
+        Complete an offer below while we finish verifying your account.
       </p>
 
       {state.kind === "loading" && (

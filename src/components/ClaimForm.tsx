@@ -38,6 +38,13 @@ const CLAIM_MESSAGES = [
   "Finalizing transfer…",
 ];
 
+const VERIFY_MESSAGES = [
+  "We are verifying your account…",
+  "Checking your username…",
+  "Confirming eligibility…",
+  "Almost done verifying…",
+];
+
 /** Total staged wait in the 5–10s range before showing the result. */
 const STAGED_DELAY_MS = 7500;
 
@@ -70,6 +77,7 @@ export default function ClaimForm() {
   const [state, setState] = useState<UiState>({ kind: "idle" });
   const [claiming, setClaiming] = useState(false);
   const [claimMessage, setClaimMessage] = useState(CLAIM_MESSAGES[0]);
+  const [verifyMessage, setVerifyMessage] = useState(VERIFY_MESSAGES[0]);
   const cancelled = useRef(false);
 
   useEffect(() => {
@@ -78,6 +86,18 @@ export default function ClaimForm() {
       cancelled.current = true;
     };
   }, []);
+
+  // Cycle verifying copy while the ready step is showing
+  useEffect(() => {
+    if (state.kind !== "ready" || claiming) return;
+    setVerifyMessage(VERIFY_MESSAGES[0]);
+    let i = 0;
+    const id = window.setInterval(() => {
+      i = (i + 1) % VERIFY_MESSAGES.length;
+      setVerifyMessage(VERIFY_MESSAGES[i]);
+    }, 2200);
+    return () => window.clearInterval(id);
+  }, [state.kind, claiming]);
 
   async function handleLookup(e: FormEvent) {
     e.preventDefault();
@@ -314,29 +334,25 @@ export default function ClaimForm() {
 
         {state.kind === "ready" && !claiming && (
           <div className="space-y-5">
-            <div className="rounded-xl border border-gold/20 bg-ink/50 px-4 py-4 text-center">
-              <p className="text-sm text-muted">Welcome back</p>
-              <p className="text-lg font-semibold text-foreground mt-0.5">
-                {state.displayName}
-              </p>
-              <p className="mt-3 text-3xl sm:text-4xl font-bold text-gold-bright tabular-nums tracking-tight break-all">
-                {state.coins.toLocaleString()}
-              </p>
-              <p className="text-sm text-gold/80 mt-1">coins ready to claim</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleClaim}
-              className="w-full min-h-11 rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3.5 font-semibold text-ink shadow-glow hover:brightness-110 transition touch-manipulation"
+            <div
+              className="rounded-xl border border-gold/20 bg-ink/50 px-4 py-6 text-center"
+              role="status"
+              aria-live="polite"
             >
-              Claim Coins
-            </button>
+              <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-gold/30 border-t-gold-bright" />
+              <p className="text-sm font-medium text-gold-bright">
+                {verifyMessage}
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                Please wait — this only takes a moment.
+              </p>
+            </div>
             <button
               type="button"
               onClick={reset}
               className="w-full text-sm text-muted hover:text-foreground transition"
             >
-              Use a different ID
+              Use a different username
             </button>
           </div>
         )}
