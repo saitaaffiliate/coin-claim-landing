@@ -18,7 +18,7 @@ type UiState =
   | { kind: "success"; claimed: number; displayName: string }
   | {
     kind: "error";
-    code: "not_found" | "already_claimed" | "generic";
+    code: "not_found" | "already_claimed" | "generic" | "missing_username";
     message: string;
   };
 
@@ -99,10 +99,17 @@ export default function ClaimForm() {
     return () => window.clearInterval(id);
   }, [state.kind, claiming]);
 
-  async function handleLookup(e: FormEvent) {
+    async function handleLookup(e: FormEvent) {
     e.preventDefault();
     const id = userId.trim();
-    if (!id) return;
+    if (!id) {
+      setState({
+        kind: "error",
+        code: "missing_username",
+        message: "Write the username first.",
+      });
+      return;
+    }
 
     setState({ kind: "loading", message: LOOKUP_MESSAGES[0] });
 
@@ -280,7 +287,15 @@ export default function ClaimForm() {
                 <input
                   type="text"
                   value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
+                  onChange={(e) => {
+                    setUserId(e.target.value);
+                    if (
+                      state.kind === "error" &&
+                      state.code === "missing_username"
+                    ) {
+                      setState({ kind: "idle" });
+                    }
+                  }}
                   placeholder="Enter your username"
                   autoComplete="username"
                   disabled={state.kind === "loading"}
@@ -289,7 +304,7 @@ export default function ClaimForm() {
               </label>
               <button
                 type="submit"
-                disabled={state.kind === "loading" || !userId.trim()}
+                disabled={state.kind === "loading"}
                 className="w-full min-h-11 rounded-xl bg-gradient-to-b from-gold-bright to-gold px-4 py-3 font-semibold text-ink shadow-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition touch-manipulation"
               >
                 {state.kind === "loading" ? "Please wait…" : "Check Rewards"}
@@ -314,17 +329,21 @@ export default function ClaimForm() {
         {state.kind === "error" && (
           <div
             role="alert"
-            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${state.code === "already_claimed"
+            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
+              state.code === "already_claimed" ||
+              state.code === "missing_username"
                 ? "border-amber-500/40 bg-amber-500/10 text-amber-200"
                 : "border-rose-500/40 bg-rose-500/10 text-rose-200"
-              }`}
+            }`}
           >
             <p className="font-medium">
               {state.code === "already_claimed"
                 ? "Already claimed"
                 : state.code === "not_found"
                   ? "Not found"
-                  : "Error"}
+                  : state.code === "missing_username"
+                    ? "Username needed"
+                    : "Error"}
             </p>
             <p className="mt-1 opacity-90">{state.message}</p>
           </div>
