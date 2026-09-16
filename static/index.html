@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="theme-color" content="#07070c" />
+    <meta
+      name="description"
+      content="Claim your earned coins"
+    />
+    <title>Robux Rewards — Claim Your Coins</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="top" class="page hero-glow">
+      <div class="grid-fade" aria-hidden="true"></div>
+
+      <header class="site-header">
+        <div class="header-inner">
+          <a href="#top" class="brand">
+            <span class="brand-star" aria-hidden="true">★</span>
+            <span class="brand-name">Robux Rewards</span>
+          </a>
+        </div>
+      </header>
+
+      <main class="site-main">
+        <section id="claim" class="claim-section">
+          <div class="hero-copy">
+            <p class="hero-badge">
+              <span aria-hidden="true">◆</span>
+              <span>Robux Generator</span>
+            </p>
+            <h1 class="hero-title">
+              Claim your <span class="gradient-text">Robux</span>
+            </h1>
+            <p class="hero-tagline">
+              Claim your earned coins. Enter your account below to look up and
+              claim — built for Robux Rewards.
+            </p>
+          </div>
+
+          <div class="claim-wrap">
+            <div id="claim-card" class="claim-card">
+              <h2 class="claim-title">Claim Your Robux</h2>
+              <p class="claim-subtitle">
+                Enter your user ID or username to check rewards
+              </p>
+
+              <form id="lookup-form" class="lookup-form" novalidate>
+                <label class="field">
+                  <span class="sr-only">User ID</span>
+                  <input
+                    id="username-input"
+                    type="text"
+                    name="username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    inputmode="text"
+                  />
+                </label>
+                <button id="lookup-submit" type="submit" class="btn-gold">
+                  Check Rewards
+                </button>
+              </form>
+
+              <div
+                id="loading-panel"
+                class="status-panel"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <div class="spinner" aria-hidden="true"></div>
+                <p id="loading-message" class="status-title">
+                  Connecting to the server…
+                </p>
+                <p class="status-hint">
+                  This can take a few seconds — hang tight.
+                </p>
+              </div>
+
+              <div id="error-panel" class="error-panel" role="alert" hidden>
+                <p id="error-title" class="error-title">Error</p>
+                <p id="error-message" class="error-message"></p>
+              </div>
+
+              <div id="ready-panel" class="ready-panel" hidden>
+                <div
+                  class="status-panel"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <div class="spinner" aria-hidden="true"></div>
+                  <p id="verify-message" class="status-title">
+                    We are verifying your account…
+                  </p>
+                  <p class="status-hint">
+                    Please wait — this only takes a moment.
+                  </p>
+                </div>
+                <button
+                  id="reset-btn"
+                  type="button"
+                  class="btn-text"
+                >
+                  Use a different username
+                </button>
+              </div>
+
+              <div id="sponsors-section" class="sponsors-embed" hidden>
+                <section id="sponsors" class="sponsors" aria-labelledby="sponsors-heading">
+                  <h2 id="sponsors-heading" class="sponsors-title">
+                    Featured apps &amp; offers
+                  </h2>
+                  <p class="sponsors-lead">
+                    Complete an offer below while we finish verifying your account.
+                  </p>
+                  <div id="sponsors-body"></div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="how" class="how-section">
+          <h2 class="how-title">How it works</h2>
+          <p class="how-lead">
+            Three quick steps from lookup to claimed coins.
+          </p>
+          <ol class="how-grid">
+            <li class="how-card">
+              <span class="how-step">1</span>
+              <h3>Enter your ID</h3>
+              <p>Type the user ID or username linked to your game account.</p>
+            </li>
+            <li class="how-card">
+              <span class="how-step">2</span>
+              <h3>Check balance</h3>
+              <p>We’ll show any Robux waiting for you — no login spam required.</p>
+            </li>
+            <li class="how-card">
+              <span class="how-step">3</span>
+              <h3>Claim rewards</h3>
+              <p>Hit Claim to lock them in. One claim per reward cycle.</p>
+            </li>
+          </ol>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <p>
+            © <span id="year">2026</span> Robux Rewards. Rewards are subject to
+            game terms.
+          </p>
+          <p class="footer-note">
+            Enter your in-game user ID to look up and claim available Robux.
+          </p>
+        </div>
+      </footer>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
