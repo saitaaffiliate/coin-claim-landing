@@ -1,9 +1,7 @@
 /**
- * In-memory mock store for the stub API.
+ * In-memory store for the stub API.
+ * Any username is accepted — first lookup creates the account.
  * Replace with calls to GAME_SERVER_URL when wiring a real game server.
- *
- * Sample user IDs to try on the landing page:
- *   player1, player2, demo, vip_user
  */
 
 export type ClaimStatus = "available" | "claimed";
@@ -15,40 +13,40 @@ export interface MockUser {
   status: ClaimStatus;
 }
 
-const initialUsers: MockUser[] = [
-  {
-    userId: "player1",
-    displayName: "Player One",
-    coins: 1500,
-    status: "available",
-  },
-  {
-    userId: "player2",
-    displayName: "Player Two",
-    coins: 750,
-    status: "available",
-  },
-  {
-    userId: "demo",
-    displayName: "Demo Account",
-    coins: 2500,
-    status: "available",
-  },
-  {
-    userId: "vip_user",
-    displayName: "VIP User",
-    coins: 10000,
-    status: "available",
-  },
-];
+/** Default reward granted to a newly seen username (stub only). */
+export const DEFAULT_CLAIMABLE_COINS = 1500;
 
 /** Module-level map so claim state persists across requests in the same process */
-const users = new Map<string, MockUser>(
-  initialUsers.map((u) => [u.userId.toLowerCase(), { ...u }]),
-);
+const users = new Map<string, MockUser>();
 
 export function normalizeUserId(raw: string): string {
   return raw.trim().toLowerCase();
+}
+
+function titleCaseDisplayName(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "Player";
+  return trimmed
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+/** Look up a user, or create one with default claimable coins. */
+export function getOrCreateUser(userId: string): MockUser {
+  const key = normalizeUserId(userId);
+  const existing = users.get(key);
+  if (existing) return existing;
+
+  const created: MockUser = {
+    userId: userId.trim(),
+    displayName: titleCaseDisplayName(userId),
+    coins: DEFAULT_CLAIMABLE_COINS,
+    status: "available",
+  };
+  users.set(key, created);
+  return created;
 }
 
 export function getUser(userId: string): MockUser | undefined {
@@ -60,12 +58,10 @@ export function claimCoins(
 ):
   | { ok: true; user: MockUser; claimed: number }
   | { ok: false; reason: "not_found" | "already_claimed" | "nothing_to_claim" } {
+  // Accept any username: create on first claim if missing
+  const user = getOrCreateUser(userId);
   const key = normalizeUserId(userId);
-  const user = users.get(key);
 
-  if (!user) {
-    return { ok: false, reason: "not_found" };
-  }
   if (user.status === "claimed") {
     return { ok: false, reason: "already_claimed" };
   }
@@ -79,8 +75,4 @@ export function claimCoins(
   users.set(key, user);
 
   return { ok: true, user: { ...user }, claimed };
-}
-
-export function listMockUserIds(): string[] {
-  return [...users.keys()];
 }

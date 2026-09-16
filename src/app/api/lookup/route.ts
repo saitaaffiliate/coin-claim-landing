@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GAME_SERVER_URL, USE_STUB } from "@/lib/config";
-import { getUser } from "@/lib/mock-store";
+import { getOrCreateUser } from "@/lib/mock-store";
 
 /**
- * GET /api/lookup?userId=player1
+ * GET /api/lookup?userId=anyUsername
  * Returns claimable coins for a user.
+ * Stub mode accepts any username and creates an account on first lookup.
  *
  * When GAME_SERVER_URL is set, forwards to that server instead of the mock.
  */
@@ -37,17 +38,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const user = getUser(userId);
-  if (!user) {
-    return NextResponse.json(
-      {
-        error: "not_found",
-        message: "No account found for that user ID.",
-        userId,
-      },
-      { status: 404 },
-    );
-  }
+  const user = getOrCreateUser(userId);
 
   return NextResponse.json({
     userId: user.userId,

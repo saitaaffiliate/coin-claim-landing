@@ -33,13 +33,6 @@ export default function Home() {
               {SITE_TAGLINE}. Enter your account below to look up and claim —
               built for {BRAND_NAME}.
             </p>
-            <p className="mt-3 text-[11px] sm:text-xs text-muted/80 leading-relaxed break-words">
-              Stub demo: try{" "}
-              <code className="text-gold-bright/90">player1</code>,{" "}
-              <code className="text-gold-bright/90">player2</code>,{" "}
-              <code className="text-gold-bright/90">demo</code>, or{" "}
-              <code className="text-gold-bright/90">vip_user</code>
-            </p>
           </div>
           <ClaimForm />
         </section>

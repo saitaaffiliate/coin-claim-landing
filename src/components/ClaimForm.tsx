@@ -262,7 +262,7 @@ export default function ClaimForm() {
                 type="text"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
-                placeholder="e.g. player1"
+                placeholder="Enter your username"
                 autoComplete="username"
                 disabled={state.kind === "loading"}
                 className="w-full min-h-11 rounded-xl border border-gold/20 bg-ink/60 px-3 sm:px-4 py-3 text-base sm:text-sm text-foreground placeholder:text-muted/70 outline-none focus:border-gold/60 focus:ring-2 focus:ring-gold/20 transition touch-manipulation"
