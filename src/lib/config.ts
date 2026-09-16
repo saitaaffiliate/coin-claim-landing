@@ -9,7 +9,7 @@
  * and update the client fetch URLs / server proxy accordingly.
  */
 
-export const BRAND_NAME = "Rewards";
+export const BRAND_NAME = "Robux Rewards";
 
 /** Public site title / meta */
 export const SITE_TAGLINE = "Claim your earned coins";
